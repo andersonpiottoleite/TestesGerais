@@ -7,7 +7,7 @@ public class IntegracaoDetalheWebServiceRD{
 
 	private static final long serialVersionUID = 1L;
 
-	private Long idIntegracao;
+	private IntegracaoWebServicePk pk;
 
 	private BigDecimal cdCartao;
 
@@ -28,11 +28,12 @@ public class IntegracaoDetalheWebServiceRD{
 	private BigDecimal cdTpEndereco;
 
 	//private BigDecimal cdTpParentesco; - MODIFICADO
-	private BigDecimal grauParentesco;
+	private BigDecimal cdGrauParentesco;
 
 	private BigDecimal cdTpTelefone;
 
-	private BigDecimal cdTpTitularidade;
+	//private BigDecimal cdTpTitularidade;  - MODIFICADO
+	private BigDecimal cdTipoTitularidade;
 
 	private String cdUf;
 
@@ -46,8 +47,7 @@ public class IntegracaoDetalheWebServiceRD{
 
 	private String dsEndereco;
 
-	//private String dsSexo; - MODIFICADO
-	private String sexo;
+	private String dsSexo;//- MANTIDO
 
 	private Date dtCadastro;
 
@@ -69,10 +69,9 @@ public class IntegracaoDetalheWebServiceRD{
 	private BigDecimal idClienteTitular;
 
 	//private String nmCliente; - MODIFICADO
-	private String nome;
+	private String nomeCliente;
 
-	//private String nrCpf;  - MODIFICADO
-	private String cpf;
+	private String nrCpf; // - MANTIDO
 
 	private BigDecimal nrCrm;
 
@@ -80,8 +79,7 @@ public class IntegracaoDetalheWebServiceRD{
 
 	private String nrIdentClienteEmpresa;
 
-	//private String nrMatricula; - MODIFICADO
-	private String matricula;
+	private String nrMatricula;// - MANTIDO
 
 	private BigDecimal nrPrefixo;
 
@@ -91,29 +89,11 @@ public class IntegracaoDetalheWebServiceRD{
 
 	private BigDecimal nrVia;
 
-	//private BigDecimal vlLimite; - MODIFICADO
-	private BigDecimal limite;
+	private BigDecimal vlLimite;// - MANTIDO
 
 	private BigDecimal vlSublimite;
 
 	private String dsObservacao;
-
-	
-	/* TODO, ver como vai ficar esas tabelas
-	@ManyToOne
-	@JoinColumn(name = "CD_TP_REGISTRO")
-	private TipoRegistro tipoRegistro; - MODIFICADO
-	*/
-	private Long tipo;
-
-	/*@ManyToOne
-	@JoinColumn(name = "CD_VALIDACAO")
-	private ArquivoValidacao arquivoValidacao; - 
-	*/
-	
-	//new 
-	private Long operacao;
-
 	
 	private String cdsFilialCliente;
 
@@ -139,15 +119,28 @@ public class IntegracaoDetalheWebServiceRD{
 
 	private Long cdContratoEspecifico;
 	
+	private BigDecimal cdTpAcao;
+	
 	// NEW 
-	private Long carteira;
+	private String numeroCarteira;
+	
+	private String dsOperacao;
+	
+	public IntegracaoDetalheWebServiceRD(long idIntegracao, Long nmIntegracaoDetalhe){
+ 		this.pk = new IntegracaoWebServicePk();
+ 		
+ 		this.pk.setIdIntegracao(idIntegracao);
+ 		this.pk.setNmIntegracaoDetalhe(nmIntegracaoDetalhe);
+ 	}
+	
+	public IntegracaoDetalheWebServiceRD(){}
 
-    public BigDecimal getGrauParentesco() {
-		return grauParentesco;
+	public IntegracaoWebServicePk getPk() {
+		return pk;
 	}
 
-	public void setGrauParentesco(BigDecimal grauParentesco) {
-		this.grauParentesco = grauParentesco;
+	public void setPk(IntegracaoWebServicePk pk) {
+		this.pk = pk;
 	}
 
 	public Date getDataNascimento() {
@@ -156,50 +149,6 @@ public class IntegracaoDetalheWebServiceRD{
 
 	public void setDataNascimento(Date dataNascimento) {
 		this.dataNascimento = dataNascimento;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public Long getOperacao() {
-		return operacao;
-	}
-
-	public void setOperacao(Long operacao) {
-		this.operacao = operacao;
-	}
-
-	public long getCarteira() {
-		return carteira;
-	}
-
-	public void setCarteira(long carteira) {
-		this.carteira = carteira;
-	}
-
-	public long getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(long tipo) {
-		this.tipo = tipo;
-	}
-
-	private BigDecimal cdTpAcao;
-
-	public IntegracaoDetalheWebServiceRD() {}
-	
-	public long getIdIntegracao() {
-		return idIntegracao;
-	}
-	
-	public void setIdIntegracao(long idIntegracao) {
-		this.idIntegracao = idIntegracao;
 	}
 	
 	public BigDecimal getCdCartao() {
@@ -280,14 +229,6 @@ public class IntegracaoDetalheWebServiceRD{
 
 	public void setCdTpTelefone(BigDecimal cdTpTelefone) {
 		this.cdTpTelefone = cdTpTelefone;
-	}
-
-	public BigDecimal getCdTpTitularidade() {
-		return this.cdTpTitularidade;
-	}
-
-	public void setCdTpTitularidade(BigDecimal cdTpTitularidade) {
-		this.cdTpTitularidade = cdTpTitularidade;
 	}
 
 	public String getCdUf() {
@@ -589,373 +530,86 @@ public class IntegracaoDetalheWebServiceRD{
         this.cdTpAcao = cdTpAcao;
     }
 
-    @Override
+    public BigDecimal getCdGrauParentesco() {
+		return cdGrauParentesco;
+	}
+
+	public void setCdGrauParentesco(BigDecimal cdGrauParentesco) {
+		this.cdGrauParentesco = cdGrauParentesco;
+	}
+
+	public BigDecimal getCdTipoTitularidade() {
+		return cdTipoTitularidade;
+	}
+
+	public void setCdTipoTitularidade(BigDecimal cdTipoTitularidade) {
+		this.cdTipoTitularidade = cdTipoTitularidade;
+	}
+
+	public String getDsSexo() {
+		return dsSexo;
+	}
+
+	public void setDsSexo(String dsSexo) {
+		this.dsSexo = dsSexo;
+	}
+
+	public String getNomeCliente() {
+		return nomeCliente;
+	}
+
+	public void setNomeCliente(String nomeCliente) {
+		this.nomeCliente = nomeCliente;
+	}
+
+	public String getNrCpf() {
+		return nrCpf;
+	}
+
+	public void setNrCpf(String nrCpf) {
+		this.nrCpf = nrCpf;
+	}
+
+	public String getNrMatricula() {
+		return nrMatricula;
+	}
+
+	public void setNrMatricula(String nrMatricula) {
+		this.nrMatricula = nrMatricula;
+	}
+
+	public BigDecimal getVlLimite() {
+		return vlLimite;
+	}
+
+	public void setVlLimite(BigDecimal vlLimite) {
+		this.vlLimite = vlLimite;
+	}
+
+	public String getNumeroCarteira() {
+		return numeroCarteira;
+	}
+
+	public void setNumeroCarteira(String numeroCarteira) {
+		this.numeroCarteira = numeroCarteira;
+	}
+
+	public String getDsOperacao() {
+		return dsOperacao;
+	}
+
+	public void setDsOperacao(String dsOperacao) {
+		this.dsOperacao = dsOperacao;
+	}
+
+	public void setCdContratoEspecifico(Long cdContratoEspecifico) {
+		this.cdContratoEspecifico = cdContratoEspecifico;
+	}
+
+	@Override
 	public String toString() {
-		return "idIntegracao=" + idIntegracao +" cdContrato=" + cdContrato + " cdPlano=" + cdPlano + " nome=" + nome + " nrIdentClienteEmpresa="
+		return "idIntegracao=" + getPk().getIdIntegracao() +" NmIntegracaoDetalhe=" +  getPk().getNmIntegracaoDetalhe() + " cdContrato=" + cdContrato + " cdPlano=" + cdPlano + " nomeCliente=" + nomeCliente + " nrIdentClienteEmpresa="
 				+ nrIdentClienteEmpresa;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((carteira == null) ? 0 : carteira.hashCode());
-		result = prime * result + ((cdCartao == null) ? 0 : cdCartao.hashCode());
-		result = prime * result + ((cdCentroCusto == null) ? 0 : cdCentroCusto.hashCode());
-		result = prime * result + ((cdCep == null) ? 0 : cdCep.hashCode());
-		result = prime * result + ((cdContrato == null) ? 0 : cdContrato.hashCode());
-		result = prime * result + ((cdContratoEspecifico == null) ? 0 : cdContratoEspecifico.hashCode());
-		result = prime * result + ((cdOperadorAlteracao == null) ? 0 : cdOperadorAlteracao.hashCode());
-		result = prime * result + ((cdOperadorCadastro == null) ? 0 : cdOperadorCadastro.hashCode());
-		result = prime * result + ((cdPlano == null) ? 0 : cdPlano.hashCode());
-		result = prime * result + ((cdSituacaoCartao == null) ? 0 : cdSituacaoCartao.hashCode());
-		result = prime * result + ((cdTpAcao == null) ? 0 : cdTpAcao.hashCode());
-		result = prime * result + ((cdTpEndereco == null) ? 0 : cdTpEndereco.hashCode());
-		result = prime * result + ((cdTpTelefone == null) ? 0 : cdTpTelefone.hashCode());
-		result = prime * result + ((cdTpTitularidade == null) ? 0 : cdTpTitularidade.hashCode());
-		result = prime * result + ((cdUf == null) ? 0 : cdUf.hashCode());
-		result = prime * result + ((cdsAgencia == null) ? 0 : cdsAgencia.hashCode());
-		result = prime * result + ((cdsBanco == null) ? 0 : cdsBanco.hashCode());
-		result = prime * result + ((cdsBeneficio == null) ? 0 : cdsBeneficio.hashCode());
-		result = prime * result + ((cdsCentroCusto == null) ? 0 : cdsCentroCusto.hashCode());
-		result = prime * result + ((cdsCodOrganograma == null) ? 0 : cdsCodOrganograma.hashCode());
-		result = prime * result + ((cdsContaCorrente == null) ? 0 : cdsContaCorrente.hashCode());
-		result = prime * result + ((cdsCustoLotacao == null) ? 0 : cdsCustoLotacao.hashCode());
-		result = prime * result + ((cdsDsOrganograma == null) ? 0 : cdsDsOrganograma.hashCode());
-		result = prime * result + ((cdsFilialCliente == null) ? 0 : cdsFilialCliente.hashCode());
-		result = prime * result + ((cpf == null) ? 0 : cpf.hashCode());
-		result = prime * result + ((dataNascimento == null) ? 0 : dataNascimento.hashCode());
-		result = prime * result + ((dsBairro == null) ? 0 : dsBairro.hashCode());
-		result = prime * result + ((dsCidade == null) ? 0 : dsCidade.hashCode());
-		result = prime * result + ((dsComplemento == null) ? 0 : dsComplemento.hashCode());
-		result = prime * result + ((dsEmail == null) ? 0 : dsEmail.hashCode());
-		result = prime * result + ((dsEndereco == null) ? 0 : dsEndereco.hashCode());
-		result = prime * result + ((dsObservacao == null) ? 0 : dsObservacao.hashCode());
-		result = prime * result + ((dtCadastro == null) ? 0 : dtCadastro.hashCode());
-		result = prime * result + ((dtFimVigenciaCartao == null) ? 0 : dtFimVigenciaCartao.hashCode());
-		result = prime * result + ((dtIniVigenciaCartao == null) ? 0 : dtIniVigenciaCartao.hashCode());
-		result = prime * result + ((dtUltAlteracao == null) ? 0 : dtUltAlteracao.hashCode());
-		result = prime * result + ((flCartaoTitular == null) ? 0 : flCartaoTitular.hashCode());
-		result = prime * result + ((grauParentesco == null) ? 0 : grauParentesco.hashCode());
-		result = prime * result + ((idCliente == null) ? 0 : idCliente.hashCode());
-		result = prime * result + ((idClienteTitular == null) ? 0 : idClienteTitular.hashCode());
-		result = prime * result + ((idConta == null) ? 0 : idConta.hashCode());
-		result = prime * result + ((idIntegracao == null) ? 0 : idIntegracao.hashCode());
-		result = prime * result + ((limite == null) ? 0 : limite.hashCode());
-		result = prime * result + ((matricula == null) ? 0 : matricula.hashCode());
-		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
-		result = prime * result + ((nrCrm == null) ? 0 : nrCrm.hashCode());
-		result = prime * result + ((nrEndereco == null) ? 0 : nrEndereco.hashCode());
-		result = prime * result + ((nrIdentClienteEmpresa == null) ? 0 : nrIdentClienteEmpresa.hashCode());
-		result = prime * result + ((nrPrefixo == null) ? 0 : nrPrefixo.hashCode());
-		result = prime * result + ((nrRg == null) ? 0 : nrRg.hashCode());
-		result = prime * result + ((nrTelefone == null) ? 0 : nrTelefone.hashCode());
-		result = prime * result + ((nrVia == null) ? 0 : nrVia.hashCode());
-		result = prime * result + ((operacao == null) ? 0 : operacao.hashCode());
-		result = prime * result + ((sexo == null) ? 0 : sexo.hashCode());
-		result = prime * result + ((subEstipulante == null) ? 0 : subEstipulante.hashCode());
-		result = prime * result + ((tipo == null) ? 0 : tipo.hashCode());
-		result = prime * result + ((vlSublimite == null) ? 0 : vlSublimite.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		IntegracaoDetalheWebServiceRD other = (IntegracaoDetalheWebServiceRD) obj;
-		if (carteira == null) {
-			if (other.carteira != null)
-				return false;
-		} else if (!carteira.equals(other.carteira))
-			return false;
-		if (cdCartao == null) {
-			if (other.cdCartao != null)
-				return false;
-		} else if (!cdCartao.equals(other.cdCartao))
-			return false;
-		if (cdCentroCusto == null) {
-			if (other.cdCentroCusto != null)
-				return false;
-		} else if (!cdCentroCusto.equals(other.cdCentroCusto))
-			return false;
-		if (cdCep == null) {
-			if (other.cdCep != null)
-				return false;
-		} else if (!cdCep.equals(other.cdCep))
-			return false;
-		if (cdContrato == null) {
-			if (other.cdContrato != null)
-				return false;
-		} else if (!cdContrato.equals(other.cdContrato))
-			return false;
-		if (cdContratoEspecifico == null) {
-			if (other.cdContratoEspecifico != null)
-				return false;
-		} else if (!cdContratoEspecifico.equals(other.cdContratoEspecifico))
-			return false;
-		if (cdOperadorAlteracao == null) {
-			if (other.cdOperadorAlteracao != null)
-				return false;
-		} else if (!cdOperadorAlteracao.equals(other.cdOperadorAlteracao))
-			return false;
-		if (cdOperadorCadastro == null) {
-			if (other.cdOperadorCadastro != null)
-				return false;
-		} else if (!cdOperadorCadastro.equals(other.cdOperadorCadastro))
-			return false;
-		if (cdPlano == null) {
-			if (other.cdPlano != null)
-				return false;
-		} else if (!cdPlano.equals(other.cdPlano))
-			return false;
-		if (cdSituacaoCartao == null) {
-			if (other.cdSituacaoCartao != null)
-				return false;
-		} else if (!cdSituacaoCartao.equals(other.cdSituacaoCartao))
-			return false;
-		if (cdTpAcao == null) {
-			if (other.cdTpAcao != null)
-				return false;
-		} else if (!cdTpAcao.equals(other.cdTpAcao))
-			return false;
-		if (cdTpEndereco == null) {
-			if (other.cdTpEndereco != null)
-				return false;
-		} else if (!cdTpEndereco.equals(other.cdTpEndereco))
-			return false;
-		if (cdTpTelefone == null) {
-			if (other.cdTpTelefone != null)
-				return false;
-		} else if (!cdTpTelefone.equals(other.cdTpTelefone))
-			return false;
-		if (cdTpTitularidade == null) {
-			if (other.cdTpTitularidade != null)
-				return false;
-		} else if (!cdTpTitularidade.equals(other.cdTpTitularidade))
-			return false;
-		if (cdUf == null) {
-			if (other.cdUf != null)
-				return false;
-		} else if (!cdUf.equals(other.cdUf))
-			return false;
-		if (cdsAgencia == null) {
-			if (other.cdsAgencia != null)
-				return false;
-		} else if (!cdsAgencia.equals(other.cdsAgencia))
-			return false;
-		if (cdsBanco == null) {
-			if (other.cdsBanco != null)
-				return false;
-		} else if (!cdsBanco.equals(other.cdsBanco))
-			return false;
-		if (cdsBeneficio == null) {
-			if (other.cdsBeneficio != null)
-				return false;
-		} else if (!cdsBeneficio.equals(other.cdsBeneficio))
-			return false;
-		if (cdsCentroCusto == null) {
-			if (other.cdsCentroCusto != null)
-				return false;
-		} else if (!cdsCentroCusto.equals(other.cdsCentroCusto))
-			return false;
-		if (cdsCodOrganograma == null) {
-			if (other.cdsCodOrganograma != null)
-				return false;
-		} else if (!cdsCodOrganograma.equals(other.cdsCodOrganograma))
-			return false;
-		if (cdsContaCorrente == null) {
-			if (other.cdsContaCorrente != null)
-				return false;
-		} else if (!cdsContaCorrente.equals(other.cdsContaCorrente))
-			return false;
-		if (cdsCustoLotacao == null) {
-			if (other.cdsCustoLotacao != null)
-				return false;
-		} else if (!cdsCustoLotacao.equals(other.cdsCustoLotacao))
-			return false;
-		if (cdsDsOrganograma == null) {
-			if (other.cdsDsOrganograma != null)
-				return false;
-		} else if (!cdsDsOrganograma.equals(other.cdsDsOrganograma))
-			return false;
-		if (cdsFilialCliente == null) {
-			if (other.cdsFilialCliente != null)
-				return false;
-		} else if (!cdsFilialCliente.equals(other.cdsFilialCliente))
-			return false;
-		if (cpf == null) {
-			if (other.cpf != null)
-				return false;
-		} else if (!cpf.equals(other.cpf))
-			return false;
-		if (dataNascimento == null) {
-			if (other.dataNascimento != null)
-				return false;
-		} else if (!dataNascimento.equals(other.dataNascimento))
-			return false;
-		if (dsBairro == null) {
-			if (other.dsBairro != null)
-				return false;
-		} else if (!dsBairro.equals(other.dsBairro))
-			return false;
-		if (dsCidade == null) {
-			if (other.dsCidade != null)
-				return false;
-		} else if (!dsCidade.equals(other.dsCidade))
-			return false;
-		if (dsComplemento == null) {
-			if (other.dsComplemento != null)
-				return false;
-		} else if (!dsComplemento.equals(other.dsComplemento))
-			return false;
-		if (dsEmail == null) {
-			if (other.dsEmail != null)
-				return false;
-		} else if (!dsEmail.equals(other.dsEmail))
-			return false;
-		if (dsEndereco == null) {
-			if (other.dsEndereco != null)
-				return false;
-		} else if (!dsEndereco.equals(other.dsEndereco))
-			return false;
-		if (dsObservacao == null) {
-			if (other.dsObservacao != null)
-				return false;
-		} else if (!dsObservacao.equals(other.dsObservacao))
-			return false;
-		if (dtCadastro == null) {
-			if (other.dtCadastro != null)
-				return false;
-		} else if (!dtCadastro.equals(other.dtCadastro))
-			return false;
-		if (dtFimVigenciaCartao == null) {
-			if (other.dtFimVigenciaCartao != null)
-				return false;
-		} else if (!dtFimVigenciaCartao.equals(other.dtFimVigenciaCartao))
-			return false;
-		if (dtIniVigenciaCartao == null) {
-			if (other.dtIniVigenciaCartao != null)
-				return false;
-		} else if (!dtIniVigenciaCartao.equals(other.dtIniVigenciaCartao))
-			return false;
-		if (dtUltAlteracao == null) {
-			if (other.dtUltAlteracao != null)
-				return false;
-		} else if (!dtUltAlteracao.equals(other.dtUltAlteracao))
-			return false;
-		if (flCartaoTitular == null) {
-			if (other.flCartaoTitular != null)
-				return false;
-		} else if (!flCartaoTitular.equals(other.flCartaoTitular))
-			return false;
-		if (grauParentesco == null) {
-			if (other.grauParentesco != null)
-				return false;
-		} else if (!grauParentesco.equals(other.grauParentesco))
-			return false;
-		if (idCliente == null) {
-			if (other.idCliente != null)
-				return false;
-		} else if (!idCliente.equals(other.idCliente))
-			return false;
-		if (idClienteTitular == null) {
-			if (other.idClienteTitular != null)
-				return false;
-		} else if (!idClienteTitular.equals(other.idClienteTitular))
-			return false;
-		if (idConta == null) {
-			if (other.idConta != null)
-				return false;
-		} else if (!idConta.equals(other.idConta))
-			return false;
-		if (idIntegracao == null) {
-			if (other.idIntegracao != null)
-				return false;
-		} else if (!idIntegracao.equals(other.idIntegracao))
-			return false;
-		if (limite == null) {
-			if (other.limite != null)
-				return false;
-		} else if (!limite.equals(other.limite))
-			return false;
-		if (matricula == null) {
-			if (other.matricula != null)
-				return false;
-		} else if (!matricula.equals(other.matricula))
-			return false;
-		if (nome == null) {
-			if (other.nome != null)
-				return false;
-		} else if (!nome.equals(other.nome))
-			return false;
-		if (nrCrm == null) {
-			if (other.nrCrm != null)
-				return false;
-		} else if (!nrCrm.equals(other.nrCrm))
-			return false;
-		if (nrEndereco == null) {
-			if (other.nrEndereco != null)
-				return false;
-		} else if (!nrEndereco.equals(other.nrEndereco))
-			return false;
-		if (nrIdentClienteEmpresa == null) {
-			if (other.nrIdentClienteEmpresa != null)
-				return false;
-		} else if (!nrIdentClienteEmpresa.equals(other.nrIdentClienteEmpresa))
-			return false;
-		if (nrPrefixo == null) {
-			if (other.nrPrefixo != null)
-				return false;
-		} else if (!nrPrefixo.equals(other.nrPrefixo))
-			return false;
-		if (nrRg == null) {
-			if (other.nrRg != null)
-				return false;
-		} else if (!nrRg.equals(other.nrRg))
-			return false;
-		if (nrTelefone == null) {
-			if (other.nrTelefone != null)
-				return false;
-		} else if (!nrTelefone.equals(other.nrTelefone))
-			return false;
-		if (nrVia == null) {
-			if (other.nrVia != null)
-				return false;
-		} else if (!nrVia.equals(other.nrVia))
-			return false;
-		if (operacao == null) {
-			if (other.operacao != null)
-				return false;
-		} else if (!operacao.equals(other.operacao))
-			return false;
-		if (sexo == null) {
-			if (other.sexo != null)
-				return false;
-		} else if (!sexo.equals(other.sexo))
-			return false;
-		if (subEstipulante == null) {
-			if (other.subEstipulante != null)
-				return false;
-		} else if (!subEstipulante.equals(other.subEstipulante))
-			return false;
-		if (tipo == null) {
-			if (other.tipo != null)
-				return false;
-		} else if (!tipo.equals(other.tipo))
-			return false;
-		if (vlSublimite == null) {
-			if (other.vlSublimite != null)
-				return false;
-		} else if (!vlSublimite.equals(other.vlSublimite))
-			return false;
-		return true;
-	}
-
-	
 
 }

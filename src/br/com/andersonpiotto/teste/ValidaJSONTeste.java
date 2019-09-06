@@ -4,21 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.NumberUtils;
 
 public class ValidaJSONTeste {
 	
@@ -126,80 +120,114 @@ public class ValidaJSONTeste {
 		}
 		
 		try {
-			separaResponseJSONParaIntegracaoDetalhe();
+			salvaResponseJSONParaIntegracaoDetalhe();
+			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private static void separaResponseJSONParaIntegracaoDetalhe() throws Exception {
+	private static void salvaResponseJSONParaIntegracaoDetalhe() throws Exception {
 		
+		List<IntegracaoDetalheWebServiceRD> listIntegracaoDetalheWebServiceRD = new ArrayList<IntegracaoDetalheWebServiceRD>();
+		
+		Long countNumeroDetalhe = 1L;
+		
+		for (String beneficiario : formataConteudoResponseJSON()) {
+			
+				if(isBeneficiarioValido(beneficiario)) {
+					
+					IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD = new IntegracaoDetalheWebServiceRD(countNumeroDetalhe+ 2, countNumeroDetalhe);
+					
+					String[] propriedades = beneficiario.split(",");
+					
+					for (String propriedade : propriedades) {
+						
+						String chave = propriedade.split(":")[0];
+						String valor = propriedade.replace(chave+":", "");
+						
+						if(valor != null && !valor.equals("")) {
+							
+							setValoresNaIntegracaoDetalhe(integracaoDetalheWebServiceRD, chave, valor);	
+						}
+					}
+					
+					listIntegracaoDetalheWebServiceRD.add(integracaoDetalheWebServiceRD);
+					
+					countNumeroDetalhe ++;
+				}
+		}
+	}
+
+	private static String[] formataConteudoResponseJSON() {
 		replaceAll(JSONResponse, "  ","");
 		replaceAll(JSONResponse, "\\}\\,\\{","#");
 		replaceAll(JSONResponse, "\\[\\{", "#");
 		replaceAll(JSONResponse, "\\}\\]", "#");
 		replaceAll(JSONResponse, "\\{", "");
 		replaceAll(JSONResponse, "\"", "");
+		replaceAll(JSONResponse, "\\: ", ":");
 		
 		String[] beneficiarios = JSONResponse.toString().split("#");
 		
-		List<IntegracaoDetalheWebServiceRD> listIntegracaoDetalheWebServiceRD = new ArrayList<IntegracaoDetalheWebServiceRD>();
-		
-		for (String beneficiario : beneficiarios) {
-			
-			IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD = new IntegracaoDetalheWebServiceRD();
-			
-			String[] propriedades = beneficiario.split(",");
-			
-			for (String prop : propriedades) {
-				
-				String chave = prop.split(":")[0];
-				String valor = prop.replace(chave+":", "").trim();
-				
-				if(valor != null && !valor.equals("")) {
-					
-					setaValoresNaIntegracaoDetalhe(integracaoDetalheWebServiceRD, chave, valor);	
-				}
-			}
-				
-			if(integracaoDetalheWebServiceRD.getCdPlano() != null) {
-				listIntegracaoDetalheWebServiceRD.add(integracaoDetalheWebServiceRD);
-			}
-		}
+		return beneficiarios;
 	}
 
-	private static void setaValoresNaIntegracaoDetalhe(IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD, String chave, String valor) throws IllegalAccessException, ParseException {
-		// API Reflection
+	private static boolean isBeneficiarioValido(String beneficiario) {
+		return containsIgnoreCase(beneficiario, "nome") && containsIgnoreCase(beneficiario, "plano") && containsIgnoreCase(beneficiario, "cpf");
+	}
+
+	private static void setValoresNaIntegracaoDetalhe(IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD, String fieldResponse, String valor) throws IllegalAccessException, ParseException {
+		
 		Object object = (Object) integracaoDetalheWebServiceRD;
 		
-		for (Field field : object.getClass().getDeclaredFields()) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		
+		// API Reflection
+		
+		for (Field fieldClasse : object.getClass().getDeclaredFields()) {
 			
-			if(containsIgnoreCase(field.getName(), chave)) {
-				field.setAccessible(true);
+			if(containsIgnoreCase(fieldClasse.getName(), fieldResponse)) {
 				
-				String typeName = field.getGenericType().getTypeName();
+				fieldClasse.setAccessible(true);
 				
-				if(typeName.contains("BigDecimal")) {
+				System.out.println("fieldClasse.getName(): " + fieldClasse.getName());
+				
+				// tratamento espefícico para field operação
+				if(containsIgnoreCase(fieldClasse.getName(),"operacao")) {
 					
-					field.set(integracaoDetalheWebServiceRD, new BigDecimal(valor));
+					String descricaoOperacao= OperacaoIntegracaoDetalheWebServiceEnum.getDescricaoOperacaoPorValor(Integer.parseInt(valor));
 					
-				}else if(typeName.contains("String")) {
+					fieldClasse.set(integracaoDetalheWebServiceRD, descricaoOperacao);
 					
-					field.set(integracaoDetalheWebServiceRD, valor);
+					break;
+				}
+				
+				//String typeName = fieldClasse.getGenericType().getTypeName();
+				
+				//String typeName = fieldClasse.getType().getTypeName();
+				
+				String typeName = fieldClasse.getType().getName();	
+				
+				if(typeName.contains("java.math.BigDecimal")) {
 					
-				}else if(typeName.contains("Boolean")) {
+					fieldClasse.set(integracaoDetalheWebServiceRD, new BigDecimal(valor));
 					
-					field.set(integracaoDetalheWebServiceRD, Boolean.parseBoolean(valor));
+				}else if(typeName.contains("java.lang.String")) {
 					
-				}else if(typeName.contains("Date")) {
+					fieldClasse.set(integracaoDetalheWebServiceRD, valor);
 					
-					SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-					field.set(integracaoDetalheWebServiceRD, dateFormat.parse(valor));
+				}else if(typeName.contains("java.lang.Boolean")) {
 					
-				}else if(typeName.contains("Long")) {
+					fieldClasse.set(integracaoDetalheWebServiceRD, Boolean.parseBoolean(valor));
 					
-					field.set(integracaoDetalheWebServiceRD, Long.parseLong(valor));
+				}else if(typeName.contains("java.util.Date")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, dateFormat.parse(valor));
+					
+				}else if(typeName.contains("java.lang.Long")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, Long.parseLong(valor));
 				}
 				
 				break;

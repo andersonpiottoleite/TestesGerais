@@ -3,9 +3,14 @@ package br.com.andersonpiotto.teste;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +18,9 @@ public class ValidaXMLTeste {
 
 	private static StringBuilder XMLResponse;
 	
-	private static StringBuilder XMLResponseParaValidacao;
+	private static StringBuilder XMLResponseParaValidacaoGeral;
+	
+	private static StringBuilder XMLResponseParaValidacaoDeValores;
 
 	public static void main(String[] args) throws IOException {
 		
@@ -48,7 +55,8 @@ public class ValidaXMLTeste {
 					XMLResponse.append(output);
 				}
 				
-				XMLResponseParaValidacao = new StringBuilder(XMLResponse.toString()) ;
+				XMLResponseParaValidacaoGeral = new StringBuilder(XMLResponse.toString());
+				XMLResponseParaValidacaoDeValores = new StringBuilder(XMLResponse.toString());
 				
 				br.close();
 			}
@@ -114,9 +122,9 @@ public class ValidaXMLTeste {
 
 		
 		
-		String[] tagsXML = getTagsXML(XMLResponseParaValidacao);
+		String[] tagsXML = getTagsXML(XMLResponseParaValidacaoGeral);
 		
-		String[]  tagsXMLParaValidacaoDeValores = getTagsXMLParaValidacaoDeValores(XML);
+		String[]  tagsXMLParaValidacaoDeValores = getTagsXMLParaValidacaoDeValores(XMLResponseParaValidacaoDeValores);
 		
 		boolean validaSeCamposDoLayoutEstaoNoXML = validaSeCamposDoLayoutEstaoNoXML(layout, tagsXML);
 		
@@ -134,43 +142,140 @@ public class ValidaXMLTeste {
 			System.out.println("PASSOU NO TESTE");
 		}
 		
-		separaResponseXMLParaIntegracaoDetalhe();
+		try {
+			
+			salvaResponseXMLParaIntegracaoDetalhe();
+			
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
-	private static void separaResponseXMLParaIntegracaoDetalhe() {
+	private static void salvaResponseXMLParaIntegracaoDetalhe() throws IllegalAccessException, ParseException {
 		
+		List<IntegracaoDetalheWebServiceRD> listIntegracaoDetalheWebServiceRD = new ArrayList<IntegracaoDetalheWebServiceRD>();
+		
+		StringBuilder fieldResponse = new StringBuilder();
+		
+		Long countNumeroDetalhe = 1L;
+		
+		for (String beneficiario : getBeneficiariosXML()) {
+			
+			if(isBeneficiarioValido(beneficiario)) {
+				
+				IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD = new IntegracaoDetalheWebServiceRD(countNumeroDetalhe + 2, countNumeroDetalhe);
+				
+				String[] propriedades = beneficiario.split(",");
+				
+				for (String propriedade : propriedades) {
+					
+					if(! isTagXMLDeVersionamento(propriedade) && !isTagXMLSomenteDeAbertura(propriedade)) {
+						
+						String tagAbertura = propriedade.substring(0, propriedade.indexOf(">") + 1);
+						String tagFechamento = propriedade.substring(propriedade.indexOf("</"));
+						
+						//String valor = propriedade.replace(tagAbertura, "").replace(tagFechamento, "");
+						
+						StringBuilder propriedadeFormatada = new StringBuilder(propriedade.length());
+						propriedadeFormatada.append(propriedade);
+						replaceAll(propriedadeFormatada, tagAbertura,"");
+						replaceAll(propriedadeFormatada, tagFechamento,"");
+						
+						String valor = propriedadeFormatada.toString();
+						
+						if(valor != null && !valor.equals("")) {
+							
+							fieldResponse.setLength(0);
+							fieldResponse.append(tagAbertura);
+							
+							replaceAll(fieldResponse, "\\<","");
+							replaceAll(fieldResponse, "\\>","");
+							
+							setValoresNaIntegracaoDetalhe(integracaoDetalheWebServiceRD, fieldResponse.toString(), valor);	
+						}					
+					}
+				}
+				
+				listIntegracaoDetalheWebServiceRD.add(integracaoDetalheWebServiceRD);
+				
+				countNumeroDetalhe ++;
+			}
+		}
+	}
+
+	private static String[] getBeneficiariosXML() {
 		replaceAll(XMLResponse, "  ","");
 		replaceAll(XMLResponse, "<beneficiarios>","#<beneficiarios>");
 		replaceAll(XMLResponse, "</beneficiarios>","<beneficiarios>#");
+		replaceAll(XMLResponse, "<beneficiario>","#<beneficiario>");
+		replaceAll(XMLResponse, "</beneficiario>","<beneficiario>#");
 		replaceAll(XMLResponse, "><", ">,<");
 		
 		String[] beneficiarios = XMLResponse.toString().split("#");
 		
-		//int count = 0; 
+		return beneficiarios;
+	}
+	
+	private static boolean isBeneficiarioValido(String beneficiario) {
+		return containsIgnoreCase(beneficiario, "nome") && containsIgnoreCase(beneficiario, "plano") && containsIgnoreCase(beneficiario, "cpf");
+	}
+
+	private static void setValoresNaIntegracaoDetalhe(IntegracaoDetalheWebServiceRD integracaoDetalheWebServiceRD, String fieldResponse, String valor) throws IllegalAccessException, ParseException {
 		
-		for (String beneficiario : beneficiarios) {
+		Object object = (Object) integracaoDetalheWebServiceRD;
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		
+		// API Reflection
+		//object.getClass().getDeclaredFields()[0].getGenericType(); in java 6
+		for (Field fieldClasse : object.getClass().getDeclaredFields()) {
 			
-			//beneficiario = addIndice(beneficiario, "Indice " + count, 0);
-			
-			String[] propriedades = beneficiario.split(",");
-			
-			for (String prop : propriedades) {
+			if(containsIgnoreCase(fieldClasse.getName(), fieldResponse)) {
 				
-				if(! prop.contains("?xml") && prop.contains("/")) {
-					String tagAbertura = prop.substring(0, prop.indexOf(">") + 1);
-					String tagFechamento = prop.substring(prop.indexOf("</"));
+				fieldClasse.setAccessible(true);
+				
+				// tratamento espefícico para field operação
+				if(containsIgnoreCase(fieldClasse.getName(),"operacao")) {
 					
-					String valor = prop.replace(tagAbertura, "").replace(tagFechamento, "");
+					String descricaoOperacao= OperacaoIntegracaoDetalheWebServiceEnum.getDescricaoOperacaoPorValor(Integer.parseInt(valor));
 					
-					System.out.println("Chave: " + tagAbertura);
-					System.out.println("Valor: " + valor);
+					fieldClasse.set(integracaoDetalheWebServiceRD, descricaoOperacao);
 					
-					// TODO se existe valor, comapra a tag com o campo e seta o valor
+					break;
 				}
+				
+				//String typeName = fieldClasse.getGenericType().getTypeName();
+				
+				//String typeName = fieldClasse.getType().getTypeName();
+				
+				String typeName = fieldClasse.getType().getName();
+				
+				if(typeName.contains("java.math.BigDecimal")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, new BigDecimal(valor));
+					
+				}else if(typeName.contains("java.lang.String")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, valor);
+					
+				}else if(typeName.contains("java.lang.Boolean")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, Boolean.parseBoolean(valor));
+					
+				}else if(typeName.contains("java.util.Date")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, dateFormat.parse(valor));
+					
+				}else if(typeName.contains("java.lang.Long")) {
+					
+					fieldClasse.set(integracaoDetalheWebServiceRD, Long.parseLong(valor));
+				}
+				
+				break;
 			}
-			
-			//count ++;
 		}
 	}
 	
@@ -192,6 +297,23 @@ public class ValidaXMLTeste {
 		
 	}
 	
+	private static String[] getTagsXMLParaValidacaoDeValores(StringBuilder XML) {
+		
+		//String XMLPreparadoParaValidacaoDeValores= XML.replace("><", ">#<").replace(">#</", "></").toLowerCase();
+		
+		//String[] tagsXMLParaValidacaoDeValores =  XMLPreparadoParaValidacaoDeValores.split("#");
+		
+		replaceAll(XML, "  ", "");
+		replaceAll(XML, "><", ">#<");
+		replaceAll(XML, ">#</", "></");
+		
+		String[] tagsXML = XML.toString().toLowerCase().split("#");
+		
+		return tagsXML;
+		
+		
+	}
+	
 	private static void replaceAll(StringBuilder sb, String find, String replace){
         
         Pattern p = Pattern.compile(find);
@@ -207,16 +329,6 @@ public class ValidaXMLTeste {
             startIndex = matcher.start() + replace.length();
         }
     }
-	
-	private static String[] getTagsXMLParaValidacaoDeValores(String XML) {
-		
-		String XMLPreparadoParaValidacaoDeValores= XML.replace("><", ">#<").replace(">#</", "></").toLowerCase();
-		
-		String[] tagsXMLParaValidacaoDeValores =  XMLPreparadoParaValidacaoDeValores.split("#");
-		
-		return tagsXMLParaValidacaoDeValores;
-		
-	}
 	
 	private static boolean validaSeCamposDoLayoutEstaoNoXML(String[] layout, String[] tagsXML) {
 		
@@ -484,5 +596,9 @@ public class ValidaXMLTeste {
 		return false;
 		
 	}
+	
+	public static boolean containsIgnoreCase(String str, String subString) {
+        return str.toLowerCase().contains(subString.toLowerCase());
+    }
 
 }
