@@ -27,7 +27,7 @@ public class ValidaXMLTeste {
 			XMLResponse = null;
 		
 			// URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/cliente");
-			URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/clienteArcelor");
+			URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/beneficiarios");
 		    //URL url = new URL("http://localhost:7001/comum/rest/webServiceTest/v1/cliente");
 			//URL url = new URL("http://localhost:7001/comum/rest/webServiceTest/v1/clienteArcelor");
 			
@@ -82,7 +82,7 @@ public class ValidaXMLTeste {
 		
 		
 		
-		String[] layout = {"CLIENTEARCELOR","BENEFICIARIOS", "STATUS", "OBSERVACAO", "CDPLANO", "MATRICULA", "CARTEIRA", "NOME","CPF","TIPO","GRAUPARENTESCO"
+		String[] layout = {"CONTENTARCELOR","BENEFICIARIOS", "STATUS", "OBSERVACAO", "CDPLANO", "MATRICULA", "CARTEIRA", "NOME","CPF","TIPO","GRAUPARENTESCO"
 				, "DATANASCIMENTO","SEXO","LIMITE","OPERACAO"};
 		String[] tiposCampo = {"STRING","STRING","BOOLEANO","STRING","NUMERO", "STRING", "STRING","STRING","STRING","NUMERO","NUMERO","DATA"
 				,"STRING","NUMERO","NUMERO"};

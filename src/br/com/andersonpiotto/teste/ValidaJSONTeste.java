@@ -23,7 +23,7 @@ public class ValidaJSONTeste {
 	public static void main(String[] args) throws IOException {
 	
 			// URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/cliente");
-			URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/clienteArcelor");
+			URL url = new URL("http://localhost:8080/faces-motors/rest/webServiceTest/v1/beneficiarios");
 			//URL url = new URL("http://localhost:7001/comum/rest/webServiceTest/v1/cliente");
 			//URL url = new URL("http://localhost:7001/comum/rest/webServiceTest/v1/clienteArcelor");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
